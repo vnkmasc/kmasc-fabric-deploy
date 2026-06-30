@@ -5,19 +5,25 @@
 
 ---
 
-## 0. Chuẩn bị mỗi máy
+## 0. Chuẩn bị mỗi máy (Ubuntu 22.04)
 
 ```bash
-# Cài ChainLaunch + custom Fabric binaries (xem repo overview / setup-fabric-binaries.sh)
-export GITHUB_TOKEN=ghp_...          # repo vnkmasc/fabric là private
-./setup-fabric-binaries.sh setup
-source ~/.bashrc
-./setup-fabric-binaries.sh run       # ChainLaunch chạy ở :3100
+# Gói cơ bản
+sudo apt-get update && sudo apt-get install -y curl git python3
 
 # Clone repo này
 git clone <repo-url> kmasc-fabric-deploy
 cd kmasc-fabric-deploy
+
+# Cài ChainLaunch (pin v0.5.0-beta.2) + custom Fabric binaries (vnkmasc/fabric)
+export GITHUB_TOKEN=ghp_...          # repo vnkmasc/fabric là private
+./scripts/setup-fabric-binaries.sh setup
+source ~/.bashrc
+./scripts/setup-fabric-binaries.sh run    # ChainLaunch chạy ở :3100
 ```
+
+> Version cố định: ChainLaunch `v0.5.0-beta.2`, Fabric fork `v3.1.1-mkv` (slot UI `3.1.3`). Xem [versions.md](versions.md).
+> `setup-fabric-binaries.sh check` để kiểm tra version + cảnh báo nếu lệch pin.
 
 ---
 

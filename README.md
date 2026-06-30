@@ -3,7 +3,7 @@
 Bộ triển khai (one-stop) cho mạng Hyperledger Fabric dự án **certificate-management-system** của nhóm KMASC.  
 Clone repo này về là có đủ: **chaincode binary build sẵn + scripts + tài liệu** để dựng mạng.
 
-> Chỉ dùng **Fabric** (không Besu). Chaincode viết bằng **Go** (CCaaS), chạy bằng **systemd**.
+> Môi trường: **Ubuntu 22.04**. Chỉ dùng **Fabric** (không Besu). Chaincode viết bằng **Go** (CCaaS), chạy bằng **systemd**.
 
 ---
 
@@ -13,14 +13,15 @@ Clone repo này về là có đủ: **chaincode binary build sẵn + scripts + t
 kmasc-fabric-deploy/
 ├── chaincode/
 │   └── bin/
-│       ├── cc-cert           # binary tĩnh linux/amd64 (build sẵn, CGO_ENABLED=0)
-│       └── BUILD-INFO.txt    # version, sha256, nguồn build
+│       ├── cc-cert                  # binary tĩnh linux/amd64 (build sẵn, CGO_ENABLED=0)
+│       └── BUILD-INFO.txt           # version, sha256, nguồn build
 ├── scripts/
-│   ├── sample-chaincode.sh   # quản lý chaincode CCaaS bằng systemd
-│   └── build-chaincode.sh    # build lại binary khi sửa logic
+│   ├── setup-fabric-binaries.sh     # cài ChainLaunch (pin version) + custom Fabric binaries
+│   ├── sample-chaincode.sh          # quản lý chaincode CCaaS bằng systemd
+│   └── build-chaincode.sh           # build lại binary khi sửa logic
 └── docs/
-    ├── deploy-guide.md       # quy trình triển khai đầy đủ
-    └── versions.md           # version cố định (chainlaunch, fabric fork, chaincode)
+    ├── deploy-guide.md              # quy trình triển khai đầy đủ
+    └── versions.md                  # version cố định (chainlaunch, fabric fork, chaincode)
 ```
 
 ---
@@ -39,6 +40,12 @@ Hai mặt phẳng độc lập — đúng tinh thần CCaaS. ChainLaunch không 
 ## Quy trình triển khai (mỗi máy / mỗi org)
 
 ```bash
+# 0) Cài nền: ChainLaunch (pin v0.5.0-beta.2) + custom Fabric binaries
+export GITHUB_TOKEN=ghp_...                    # repo vnkmasc/fabric private
+./scripts/setup-fabric-binaries.sh setup
+./scripts/setup-fabric-binaries.sh run         # ChainLaunch :3100
+# → vào UI tạo org/peer/orderer/channel (xem docs/deploy-guide.md)
+
 # 1) Control plane — install + approve (+ commit) qua chainlaunch
 #    Sinh file .env chứa packageID (CORE_CHAINCODE_ID_NAME)
 chainlaunch fabric install --local \
