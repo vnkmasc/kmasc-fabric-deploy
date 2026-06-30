@@ -1,0 +1,8 @@
+Binary      : cc-cert
+Target      : linux/amd64 (static, CGO_ENABLED=0, stripped)
+Chaincode   : certificate-management-system (CertificateContract v2.0.0)
+Source      : github.com/tuyenngduc/certificate-management-system/chaincode @ 3b0d99f
+Built with  : go1.26.3
+Build flags : -mod=vendor -trimpath -ldflags="-s -w"
+SHA256      : 756136456d72479f65515345863e80960e478e67fa547fcd2a1f45bde08cf302
+Built on    : 2026-06-30T15:08:41Z

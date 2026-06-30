@@ -1,0 +1,4 @@
+# Môi trường runtime — không commit
+.env
+*.log
+network-config.yaml
