@@ -1,0 +1,4 @@
+# Script shell luôn dùng LF (chạy trên Linux), tránh lỗi 'bad interpreter' do CRLF
+*.sh text eol=lf
+# Binary chaincode: đối xử như binary, không convert
+chaincode/bin/cc-cert binary
