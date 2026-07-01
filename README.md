@@ -16,10 +16,12 @@ kmasc-fabric-deploy/
 │       ├── cc-cert                  # binary tĩnh linux/amd64 (build sẵn, CGO_ENABLED=0)
 │       └── BUILD-INFO.txt           # version, sha256, nguồn build
 ├── scripts/
+│   ├── bootstrap-vm.sh              # cài gói hệ thống cho VM Ubuntu mới (vim, git, python3, ...)
 │   ├── setup-fabric-binaries.sh     # cài ChainLaunch (pin version) + custom Fabric binaries
 │   ├── sample-chaincode.sh          # quản lý chaincode CCaaS bằng systemd
 │   └── build-chaincode.sh           # build lại binary khi sửa logic
 └── docs/
+    ├── vm-setup.md                  # tạo VM GCP, firewall, static IP
     ├── deploy-guide.md              # quy trình triển khai đầy đủ
     └── versions.md                  # version cố định (chainlaunch, fabric fork, chaincode)
 ```
@@ -40,7 +42,11 @@ Hai mặt phẳng độc lập — đúng tinh thần CCaaS. ChainLaunch không 
 ## Quy trình triển khai (mỗi máy / mỗi org)
 
 ```bash
-# 0) Cài nền: ChainLaunch (pin v0.5.0-beta.2) + custom Fabric binaries
+# 0a) VM mới (GCP Ubuntu 22.04) — cài gói hệ thống. Xem docs/vm-setup.md (static IP + firewall)
+./scripts/bootstrap-vm.sh
+
+# 0b) Cài nền: ChainLaunch (pin v0.5.0-beta.2) + custom Fabric binaries
+# vào để lấy token : https://github.com/settings/tokens
 export GITHUB_TOKEN=ghp_...                    # repo vnkmasc/fabric private
 ./scripts/setup-fabric-binaries.sh setup
 ./scripts/setup-fabric-binaries.sh run         # ChainLaunch :3100
