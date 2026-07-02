@@ -75,26 +75,34 @@ gcloud compute firewall-rules create fabric-chainlaunch-ui \
 
 ## 3. Cài nền trong VM
 
+### 3.1. Cài gói hệ thống
+
 ```bash
-# SSH vào VM, rồi:
+sudo apt-get update -y
+
+# Bắt buộc cho dự án
+#   python3        → setup-fabric-binaries.sh dùng parse JSON
+#   iproute2       → lệnh 'ss' (sample-chaincode.sh kiểm port)
+sudo apt-get install -y curl git python3 ca-certificates iproute2
+
+# Tiện ích (tuỳ chọn)
+sudo apt-get install -y vim jq htop tmux wget unzip tree net-tools
+```
+
+> Chaincode chạy bằng binary Go **tĩnh** (build sẵn trong repo) → VM **không cần** cài Go.
+> Chỉ cài Go nếu muốn build lại chaincode ngay trên VM (xem `scripts/build-chaincode.sh`).
+
+### 3.2. Clone repo + cài ChainLaunch/Fabric
+
+```bash
 git clone <repo-url> kmasc-fabric-deploy
 cd kmasc-fabric-deploy
 
-# 1) Cài gói cần thiết (vim, git, python3, curl, ...)
-./scripts/bootstrap-vm.sh
-#   Muốn build chaincode ngay trên VM: WITH_GO=1 ./scripts/bootstrap-vm.sh
-
-# 2) Cài ChainLaunch (pin v0.5.0-beta.2) + custom Fabric binaries
-export GITHUB_TOKEN=ghp_...
-./scripts/setup-fabric-binaries.sh setup
+export GITHUB_TOKEN=ghp_...                     # repo vnkmasc/fabric private
+./scripts/setup-fabric-binaries.sh setup        # ChainLaunch (pin v0.5.0-beta.2) + Fabric binaries
 source ~/.bashrc
-./scripts/setup-fabric-binaries.sh run
+./scripts/setup-fabric-binaries.sh run          # ChainLaunch :3100
 ```
-
-`bootstrap-vm.sh` cài:
-- **Bắt buộc:** `curl git python3 ca-certificates iproute2` (python3 để `setup-fabric-binaries.sh` parse JSON; `ss` để kiểm port)
-- **Tiện ích:** `vim jq htop tmux wget unzip tree net-tools`
-- **Tuỳ chọn:** Go (chỉ khi `WITH_GO=1`, để rebuild chaincode)
 
 ---
 
@@ -104,7 +112,7 @@ source ~/.bashrc
 Tạo VM (static IP, tag fabric-node)
   └─► Mở firewall VPC (3100 / 7000 / 9000-9200)
        └─► SSH vào
-            ├─► bootstrap-vm.sh              (gói hệ thống)
+            ├─► apt-get install ...          (gói hệ thống — mục 3.1)
             ├─► setup-fabric-binaries.sh     (ChainLaunch + Fabric binaries)
             ├─► UI :3100 → tạo org/node/channel (External Endpoint = static IP)
             ├─► chainlaunch fabric install   (→ .env packageID)
