@@ -92,7 +92,51 @@ sudo apt-get install -y vim jq htop tmux wget unzip tree net-tools
 > Chaincode chạy bằng binary Go **tĩnh** (build sẵn trong repo) → VM **không cần** cài Go.
 > Chỉ cài Go nếu muốn build lại chaincode ngay trên VM (xem `scripts/build-chaincode.sh`).
 
-### 3.2. Clone repo + cài ChainLaunch/Fabric
+### 3.2. Cài Docker (bắt buộc — kể cả không dùng docker-mode node)
+
+ChainLaunch khởi động `pluginManager` lúc `serve`, và bước đó **check Docker engine** ngay cả khi
+mọi peer/orderer chạy ở mode `service` (systemd), không phải `docker`. Thiếu Docker → log lỗi:
+```
+Failed to initialize plugin manager: failed to check if Docker engine is running:
+Cannot connect to the Docker daemon at unix:///var/run/docker.sock
+```
+
+Cài Docker Engine (theo hướng dẫn chính thức, Ubuntu 22.04):
+
+```bash
+# Gỡ bản cũ nếu có (bỏ qua lỗi nếu chưa cài)
+for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do
+  sudo apt-get remove -y $pkg 2>/dev/null || true
+done
+
+# Thêm GPG key + repo chính thức của Docker
+sudo apt-get update -y
+sudo apt-get install -y ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update -y
+
+# Cài Docker Engine + CLI + Compose plugin
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# Cho user hiện tại chạy docker không cần sudo (đăng nhập lại hoặc `newgrp docker` để áp dụng)
+sudo usermod -aG docker "$USER"
+
+# Kiểm tra
+sudo systemctl enable --now docker
+docker version
+```
+
+> Nếu chạy script `setup-fabric-binaries.sh` bằng `sudo` (như trong `cmd_run`), Docker daemon cần chạy
+> sẵn trước — `docker.sock` do root sở hữu, `sudo -E chainlaunch serve` sẽ dùng được ngay không cần vào group.
+
+### 3.3. Clone repo + cài ChainLaunch/Fabric
 
 ```bash
 git clone <repo-url> kmasc-fabric-deploy
@@ -113,6 +157,7 @@ Tạo VM (static IP, tag fabric-node)
   └─► Mở firewall VPC (3100 / 7000 / 9000-9200)
        └─► SSH vào
             ├─► apt-get install ...          (gói hệ thống — mục 3.1)
+            ├─► cài Docker                   (bắt buộc — mục 3.2, xem cảnh báo)
             ├─► setup-fabric-binaries.sh     (ChainLaunch + Fabric binaries)
             ├─► UI :3100 → tạo org/node/channel (External Endpoint = static IP)
             ├─► chainlaunch fabric install   (→ .env packageID)
