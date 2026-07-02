@@ -22,6 +22,7 @@ kmasc-fabric-deploy/
 └── docs/
     ├── vm-setup.md                  # tạo VM GCP, firewall, static IP
     ├── deploy-guide.md              # quy trình triển khai đầy đủ
+    ├── monitoring.md                # lệnh theo dõi/giám sát (service, log, port, ledger)
     └── versions.md                  # version cố định (chainlaunch, fabric fork, chaincode)
 ```
 
