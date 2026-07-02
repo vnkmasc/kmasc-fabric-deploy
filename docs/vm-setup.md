@@ -145,8 +145,32 @@ cd kmasc-fabric-deploy
 export GITHUB_TOKEN=ghp_...                     # repo vnkmasc/fabric private
 ./scripts/setup-fabric-binaries.sh setup        # ChainLaunch (pin v0.5.0-beta.2) + Fabric binaries
 source ~/.bashrc
-./scripts/setup-fabric-binaries.sh run          # ChainLaunch :3100
 ```
+
+`run` chạy `chainlaunch serve` ở **foreground** (chiếm terminal). Có 2 cách chạy ở nền:
+
+```bash
+# Cách 1 — nohup (đơn giản, không tự sống lại nếu VM reboot)
+nohup ./scripts/setup-fabric-binaries.sh run > ~/chainlaunch.log 2>&1 &
+disown
+
+# Xem log
+tail -f ~/chainlaunch.log
+
+# Dừng
+pkill -f 'chainlaunch serve'
+```
+
+```bash
+# Cách 2 — dùng screen/tmux (giữ được phiên khi mất kết nối SSH, dễ xem lại)
+sudo apt-get install -y tmux   # nếu chưa có
+tmux new -s chainlaunch
+./scripts/setup-fabric-binaries.sh run
+# Ctrl+B rồi D để thoát ra ngoài (chainlaunch vẫn chạy)
+# Vào lại: tmux attach -t chainlaunch
+```
+
+> Cả 2 cách trên **không tự khởi động lại khi VM reboot**. Muốn reboot-safe (giống peer/orderer đã có systemd), cần tạo thêm 1 systemd service riêng cho ChainLaunch (`ExecStart=chainlaunch serve --data=... --db=... --port=3100`, `Restart=on-failure`).
 
 ---
 

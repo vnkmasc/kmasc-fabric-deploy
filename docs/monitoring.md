@@ -42,8 +42,9 @@ journalctl -u fabric-peer-peer0-org1msp --since "1 hour ago" | grep -iE 'error|p
 # Log của tất cả orderer cùng lúc (theo dõi Raft)
 journalctl -u 'fabric-orderer-*' -f
 
-# Log ChainLaunch (nếu chạy qua script setup-fabric-binaries.sh run, log ra terminal đó;
-# nếu chạy nền, xem file log bạn redirect tới)
+# Log ChainLaunch — tuỳ cách chạy (xem vm-setup.md mục "chạy nền"):
+tail -f ~/chainlaunch.log        # nếu chạy bằng nohup
+tmux attach -t chainlaunch       # nếu chạy trong tmux
 ```
 
 ---
